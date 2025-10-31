@@ -1,0 +1,40 @@
+{
+    "type": "3d",
+    "shaders": {
+        "fragment": "shaders/post_process.glsl",
+        "vertex": "shaders/fullscreen_quad.glsl"
+    },
+    "uniform_blocks": 
+    [
+        "camera"
+    ],
+    "uniforms": [
+        {
+            "name": "MODEL",
+            "type": "mat4",
+            "default": "identity"
+        },
+        {
+            "name": "TINT",
+            "type": "vec4",
+            "default": [
+                1.0, 1.0, 1.0, 1.0
+            ]
+        }
+    ],
+    "depth_state": {
+        "read": false,
+        "write": false,
+        "function": "always"
+    },
+    "rasterizer_state": {
+        "cull": "none",
+        "front": "counterclockwise",
+        "wireframe": false,
+        "scissor": false
+    },
+    "blend_state": {
+        "enabled": false
+    },
+    "render_layer": "opaque"
+}

@@ -1,0 +1,5 @@
+FileVersion = 1
+Projects = {Voxis = {Path = "."}}
+
+[Workspace]
+StartupProject = "Voxis"

@@ -1,0 +1,46 @@
+{
+    "type": "3d",
+    "shaders": {
+        "fragment": "shaders/default_frag_opaque.glsl",
+        "vertex": "shaders/default_vertex.glsl"
+    },
+    "uniform_blocks": 
+    [
+        "camera", "environment"
+    ],
+    "uniforms": [
+        {
+            "name": "MODEL",
+            "type": "mat4",
+            "default": "identity"
+        },
+        {
+            "name": "TINT",
+            "type": "vec4",
+            "default": [
+                1.0, 1.0, 1.0, 1.0
+            ]
+        }
+    ],
+    "samplers": [
+        {
+            "name": "MAIN_TEX",
+            "default": "white"
+        }
+    ],
+    "depth_state": {
+        "read": true,
+        "write": true,
+        "function": "less_equal"
+    },
+    "rasterizer_state": {
+        "cull": "back",
+        "front": "clockwise",
+        "wireframe": false,
+        "scissor": false
+    },
+    "blend_state": {
+        "enabled": false
+    },
+    "render_layer": "opaque"
+}

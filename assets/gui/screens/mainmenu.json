@@ -1,0 +1,59 @@
+{
+    "id": "mainmenu",
+    "children": 
+    [
+        {
+            "id": "background",
+            "type": "texture_rect",
+            "texture": "textures/block/stone.png",
+            "anchor": "fill"
+        },
+        {
+            "type": "panel",
+            "anchor": "0.5 0.5 0.5 0.5",
+            "margin": "-200 0 200 0",
+            "children": 
+            [
+                {
+                    "type": "vertical_box",
+                    "children": 
+                    [
+                        {
+                            "id": "header",
+                            "type": "label",
+                            "text": "Voxis Game",
+                            "rotation": -1.0,
+                            "depth": 100,
+                            "scale": "2 2"
+                        },
+                        {
+                            "id": "load_world_button",
+                            "type": "button",
+                            "text": "Load World"
+                        },
+                        {
+                            "id": "create_world_button",
+                            "type": "button",
+                            "text": "Create World"
+                        },
+                        {
+                            "id": "options_button",
+                            "type": "button",
+                            "text": "Options"
+                        },
+                        {
+                            "id": "mods_button",
+                            "type": "button",
+                            "text": "This is a test"
+                        },
+                        {
+                            "id": "exit_button",
+                            "type": "button",
+                            "text": "What is going on?"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
