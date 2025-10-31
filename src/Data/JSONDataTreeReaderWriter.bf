@@ -1,12 +1,151 @@
-using System;
-using System.IO;
-
 namespace Voxis.Data;
 
-public class TextDataTreeReader
+using System.IO;
+using System;
+
+public class JSONDataTreeReaderWriter : DataTreeReaderWriter
 {
 	private String _string;
-	private int _position = 0;
+	private int _position;
+
+	public override void Write(DataTree tree, Stream stream)
+	{
+		StringStream stringStream = scope StringStream();
+		WriteNode(tree.Root, stringStream, false, 0);
+		String buffer = scope String();
+		stringStream.ToString(buffer);
+
+		stream.Write(buffer);
+	}
+	public override Result<DataTree> Read(Stream stream)
+	{
+		_string = new String();
+		_position = 0;
+
+		// TODO: This is so stupid, why do i need to do this?
+		while (stream.CanRead)
+		{
+			String temp = scope String();
+			stream.ReadStrSized32(128, temp);
+
+			if (temp.IsEmpty) break;
+
+			_string.Append(temp);
+		}
+		SkipWhitespace();
+
+		// Now we can read
+		TreeNode root = ReadNode();
+
+		// Reset state
+		delete _string;
+		_position = 0;
+
+		return new DataTree(root);
+	}
+
+	private void WriteNode(TreeNode node, StringStream stream, bool pretty, int indentation)
+	{
+		switch(node)
+		{
+		case .Object(let map):
+			stream.Write(TextTag.ObjectStart);
+
+			if (pretty) stream.Write("\n");
+
+			int currentIndex = 0;
+			for (let pair in map)
+			{
+				if (pretty)
+				{
+					stream.Write(scope String('\t', indentation + 1));
+				}
+
+				stream.Write(TextTag.Text);
+				stream.Write(pair.key);
+				stream.Write(TextTag.Text);
+
+				stream.Write(TextTag.KeyValueSeparator);
+
+				if (pretty) stream.Write(TextTag.Space);
+
+				WriteNode(pair.value, stream, pretty, indentation + 1);
+
+				if (currentIndex < map.Count - 1)
+				{
+					stream.Write(TextTag.Separator);
+
+					if (pretty) stream.Write('\n');
+				}
+
+				currentIndex += 1;
+			}
+
+			if (pretty)
+			{
+				stream.Write('\n');
+				stream.Write(scope String('\t', indentation));
+			}
+
+			stream.Write(TextTag.ObjectEnd);
+			break;
+		case .Boolean(let n):
+			if (n) stream.Write("true");
+			else stream.Write("false");
+			break;
+		case .Number(let n):
+			String temp = scope String();
+			n.ToString(temp);
+			stream.Write(temp);
+			break;
+		case .Decimal(let n):
+			String temp = scope String();
+			n.ToString(temp);
+			stream.Write(temp);
+			break;
+		case .List(let list):
+			stream.Write(TextTag.ListStart);
+
+			if (pretty) stream.Write('\n');
+
+			int currentIndex = 0;
+			for (TreeNode element in list)
+			{
+				if (pretty)
+				{
+					stream.Write(scope String('\t', indentation + 1));
+				}
+
+				WriteNode(element, stream, pretty, indentation + 1);
+
+				if (currentIndex < list.Count - 1)
+				{
+					stream.Write(TextTag.Separator);
+
+					if (pretty) stream.Write('\n');
+				}
+
+				currentIndex += 1;
+			}
+
+			if (pretty)
+			{
+				stream.Write('\n');
+				stream.Write(scope String('\t', indentation));
+			}
+
+			stream.Write(TextTag.ListEnd);
+			break;
+		case .Null:
+			stream.Write("Null");
+			break;
+		case .Text(let s):
+			stream.Write(TextTag.Text);
+			stream.Write(s);
+			stream.Write(TextTag.Text);
+			break;
+		}
+	}
 
 	private char8 CurrentCharacter
 	{
@@ -178,32 +317,7 @@ public class TextDataTreeReader
 		return TreeNode.List(list);
 	}
 
-	public DataTree ReadFromFile(StringView path)
-	{
-		_string = scope String();
-		File.ReadAllText(path, _string);
-
-		SkipWhitespace();
-
-		// There should be only one root object
-		TreeNode root = ReadNode();
-
-		return new DataTree(root);
-	}
-
-	public DataTree ReadFromText(StringView text)
-	{
-		_string = scope String(text);
-		_position = 0;
-
-		SkipWhitespace();
-
-		TreeNode root = ReadNode();
-
-		return new DataTree(root);
-	}
-
-	public TreeNode ReadNode()
+	private TreeNode ReadNode()
 	{
 		switch (CurrentCharacter)
 		{

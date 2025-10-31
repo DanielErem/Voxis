@@ -215,12 +215,11 @@ public static class ResourceServer
 
 		if (SearchFile(filePath, foundPath))
 		{
-			TextDataTreeReader reader = scope TextDataTreeReader();
-			DataTree tree = reader.ReadFromFile(foundPath);
+			DataTree dataTree = DataTree.ReadJSONFile(foundPath);
 
-			Material material = Material.ParseFromData(tree);
+			Material material = Material.ParseFromData(dataTree);
 
-			delete tree;
+			delete dataTree;
 
 			resourceCache.Add(new String(filePath), material);
 

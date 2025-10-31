@@ -22,10 +22,51 @@ public class DataTree
 		Root.Delete();
 	}
 
-	public void BinaryWriteToFile(StringView path)
+	public static DataTree ReadJSONFile(StringView path)
 	{
-		BinaryDataTreeWriter writer = scope BinaryDataTreeWriter();
+		FileStream stream = scope FileStream();
+		stream.Open(path, .Read, .None);
 
-		writer.WriteData(this, path);
+		JSONDataTreeReaderWriter reader = scope JSONDataTreeReaderWriter();
+		DataTree result = reader.Read(stream);
+
+		stream.Close();
+
+		return result;
+	}
+
+	public static DataTree ReadBinaryFile(StringView path)
+	{
+		FileStream stream = scope FileStream();
+		stream.Open(path, .Read, .None);
+
+		BinaryDataTreeReaderWriter reader = scope BinaryDataTreeReaderWriter();
+		DataTree result = reader.Read(stream);
+
+		stream.Close();
+
+		return result;
+	}
+
+	public void WriteJSONFile(StringView path)
+	{
+		FileStream stream = scope FileStream();
+		stream.Open(path, .Write, .None);
+
+		JSONDataTreeReaderWriter writer = scope JSONDataTreeReaderWriter();
+		writer.Write(this, stream);
+
+		stream.Close();
+	}
+
+	public void WriteBinaryFile(StringView path)
+	{
+		FileStream stream = scope FileStream();
+		stream.Open(path, .Write, .None);
+
+		BinaryDataTreeReaderWriter writer = scope BinaryDataTreeReaderWriter();
+		writer.Write(this, stream);
+
+		stream.Close();
 	}
 }

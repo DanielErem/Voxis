@@ -1,22 +1,67 @@
+namespace Voxis.Data;
+
 using System;
 using System.IO;
 
-namespace Voxis.Data;
-
-public class BinaryDataTreeReader
+public class BinaryDataTreeReaderWriter : DataTreeReaderWriter
 {
-	public DataTree ReadFromFile(StringView path)
+	public override void Write(DataTree tree, Stream stream)
 	{
-		FileStream stream = scope FileStream();
-
-		stream.Open(path);
-
+		WriteNode(tree.Root, stream);
+	}
+	public override Result<DataTree> Read(Stream stream)
+	{
 		TreeNode root = ReadNode(stream);
 
 		return new DataTree(root);
 	}
 
-	public TreeNode ReadNode(FileStream stream)
+	private void WriteNode(TreeNode node, Stream stream)
+	{
+		switch(node)
+		{
+		case .Object(let map):
+			stream.Write(BinaryTag.ObjectStart);
+			for (let pair in map)
+			{
+				stream.Write(BinaryTag.MapKey);
+				stream.WriteStrSized32(pair.key);
+
+				WriteNode(pair.value, stream);
+			}
+			stream.Write(BinaryTag.ObjectEnd);
+			break;
+		case .Boolean(let n):
+			stream.Write(BinaryTag.Boolean);
+			stream.Write(n);
+			break;
+		case .Number(let n):
+			stream.Write(BinaryTag.Number);
+			stream.Write(n);
+			break;
+		case .Decimal(let n):
+			stream.Write(BinaryTag.Decimal);
+			stream.Write(n);
+			break;
+		case .List(let list):
+			stream.Write(BinaryTag.ListStart);
+			stream.Write<int64>((int64)list.Count);
+			for (TreeNode element in list)
+			{
+				WriteNode(element, stream);
+			}
+			break;
+		case .Null:
+			stream.Write(BinaryTag.Null);
+			break;
+		case .Text(let s):
+			stream.Write(BinaryTag.Text);
+			stream.WriteStrSized32(s);
+			break;
+		}
+	}
+
+	private TreeNode ReadNode(Stream stream)
 	{
 		BinaryTag tag = stream.Read<BinaryTag>();
 

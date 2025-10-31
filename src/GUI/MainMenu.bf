@@ -10,10 +10,9 @@ namespace Voxis
 
 		public this()
 		{
-			TextDataTreeReader reader = scope TextDataTreeReader();
-			DataTree dataTree = reader.ReadFromFile("assets/gui/screens/mainmenu.json");
-			ParseFromDatatree(dataTree);
-			delete dataTree;
+			DataTree tree = DataTree.ReadJSONFile("assets/gui/screens/mainmenu.json");
+			ParseFromDatatree(tree);
+			delete tree;
 
 			FindElement<Button>("create_world_button").OnClickEvent.Add(new => OnCreateWorldClick);
 
